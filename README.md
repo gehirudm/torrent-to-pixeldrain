@@ -7,5 +7,7 @@ It's a file sharing site.
 - Fast transfer speeds
 
 ## Installation
-`npm install torrent-to-pixeldrain`
+```shell
+npm install torrent-to-pixeldrain
+```
 
