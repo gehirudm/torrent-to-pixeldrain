@@ -1,10 +1,12 @@
 {
   "name": "@gehirudm/torrent-to-pixeldrain",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Allows you to download a torrent and upload it to pixeldrain.com",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["/dist"],
+  "files": [
+    "/dist"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js"
@@ -16,7 +18,10 @@
   "homepage": "https://github.com/gehirudm/torrent-to-pixeldrain#readme",
   "author": "Gehiru Damnidu",
   "license": "ISC",
-  "keywords": ["pixeldrain", "torrent"],
+  "keywords": [
+    "pixeldrain",
+    "torrent"
+  ],
   "dependencies": {
     "typescript": "^5.0.4"
   }
