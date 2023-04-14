@@ -1,16 +1,18 @@
-import { Uploadable } from "../uploadableinterface";
+import { Uploadable } from "../interfaces/uploadable";
 
-class UploadableDirectory implements Uploadable {
-    
-    APIKey: string;
+export class UploadableDirectory implements Uploadable {
 
-    constructor(APIKey: string) {
-        this.APIKey = APIKey;
+    location: string;
+    name: string;
+
+    constructor(location: string, name: string) {
+        this.location = location;
+        this.name = name;
     }
 
-    upload(): Promise<boolean> {
+    upload(APIKey: string): Promise<boolean> {
         return new Promise<boolean>(async (resolve, reject) => {
-            
+
         })
     }
 

@@ -1,0 +1,63 @@
+import { TorrentType } from "../interfaces/torrenttype";
+import { Uploadable } from "../interfaces/uploadable";
+import { UploadableMultiTorrentDownloads } from "../uploadable-types/uploadablemultitorrent";
+import { UploadableDirectory } from "../uploadable-types/uploadabledirectory";
+import { UploadableFile } from "../uploadable-types/uploadablefile";
+import * as fs from 'fs';
+import WebTorrent from 'webtorrent'
+
+export class DirectoryOfTorrentFiles implements TorrentType {
+    directoryLocation: string;
+
+    constructor(directoryLocation: string) {
+        directoryLocation = directoryLocation;
+    }
+
+    download(): Promise<Uploadable> {
+        return new Promise<Uploadable>((resolve, reject) => {
+
+            const client = new WebTorrent()
+
+            let count = 0;
+            const uploadable = new UploadableMultiTorrentDownloads();
+            fs.readdirSync(this.directoryLocation).forEach(file => {
+                let torrentName = file.split(".")[0];
+
+                let torrentID = `${this.directoryLocation}/${file}`
+                let downloadLocation = `/downloads/${torrentName}`
+
+                client.add(torrentID, { path: downloadLocation }, torrent => {
+                    count++;
+
+                    torrent.on('done', () => {
+                        if (torrent.files.length > 1) {
+                            //Multiple Files have been downloaded from the torrent
+                            uploadable.children.push(new UploadableDirectory(`.${downloadLocation}`, torrent.name))
+                        } else {
+                            let filePath = torrent.files[0].path
+                            uploadable.children.push(new UploadableFile(`.${downloadLocation}/${filePath}`))
+                        }
+
+                        count --;
+
+                        if (count == 0) {
+                            
+                        }
+                    })
+
+                    torrent.on('error', (err) => {
+                        console.error(`Following error has occured whilst downloading a torrent file.\n[${torrent.name}] : ${err}`)
+                        client.remove(torrentID)
+                        count --;
+                    })
+
+                    torrent.on('noPeers', () => {
+                        console.log(`Following torrent appears to have no peers, and thus will be skipped.\n[${file}]`);
+                        client.remove(torrentID)
+                        count--;
+                    })
+                })
+            });
+        })
+    }
+}

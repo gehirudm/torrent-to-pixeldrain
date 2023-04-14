@@ -1,5 +1,5 @@
-import { TorrentType } from "./torrenttypeinterface";
-import { Uploadable } from "./uploadableinterface";
+import { TorrentType } from "./interfaces/torrenttype";
+import { Uploadable } from "./interfaces/uploadable";
 
 class TorrentToPixeldrain {
     constructor(torrent: TorrentType, pixeldrainAPIKey: string) {

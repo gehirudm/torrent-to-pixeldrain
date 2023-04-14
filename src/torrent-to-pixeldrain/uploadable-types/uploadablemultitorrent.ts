@@ -1,13 +1,8 @@
 import { Uploadable } from "../interfaces/uploadable";
 
-export class UploadableFile implements Uploadable {
+export class UploadableMultiTorrentDownloads implements Uploadable {
+    children:Uploadable[];
     
-    location:string;
-
-    constructor(location:string) {
-        this.location = location;    
-    }
-
     upload(APIKey:string): Promise<boolean> {
         return new Promise<boolean>(async (resolve, reject) => {
             

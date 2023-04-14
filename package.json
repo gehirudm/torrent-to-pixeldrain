@@ -1,5 +1,5 @@
 {
-  "name": "@gehirudm/torrent-to-pixeldrain",
+  "name": "torrent-to-pixeldrain",
   "version": "0.0.3",
   "description": "Allows you to download a torrent and upload it to pixeldrain.com",
   "main": "dist/index.js",
@@ -23,6 +23,11 @@
     "torrent"
   ],
   "dependencies": {
-    "typescript": "^5.0.4"
+    "@types/webtorrent": "^0.109.3",
+    "typescript": "^5.0.4",
+    "webtorrent": "^2.0.16"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.11"
   }
 }
