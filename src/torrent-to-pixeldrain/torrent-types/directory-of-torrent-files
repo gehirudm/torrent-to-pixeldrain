@@ -8,6 +8,17 @@ import WebTorrent from 'webtorrent'
 
 export class DirectoryOfTorrentFiles implements TorrentType {
     directoryLocation: string;
+    readonly MAIN_DOWNLOAD_FOLDER = "downloads";
+
+    private _count = 0;
+
+    public get downloadingTorrentCount() {
+        return this._count;
+    }
+
+    public set downloadingTorrentCount(value) {
+        this._count = value;
+    }
 
     constructor(directoryLocation: string) {
         directoryLocation = directoryLocation;
@@ -18,46 +29,67 @@ export class DirectoryOfTorrentFiles implements TorrentType {
 
             const client = new WebTorrent()
 
-            let count = 0;
+
             const uploadable = new UploadableMultiTorrentDownloads();
-            fs.readdirSync(this.directoryLocation).forEach(file => {
-                let torrentName = file.split(".")[0];
 
-                let torrentID = `${this.directoryLocation}/${file}`
-                let downloadLocation = `/downloads/${torrentName}`
-
-                client.add(torrentID, { path: downloadLocation }, torrent => {
-                    count++;
-
-                    torrent.on('done', () => {
-                        if (torrent.files.length > 1) {
-                            //Multiple Files have been downloaded from the torrent
-                            uploadable.children.push(new UploadableDirectory(`.${downloadLocation}`, torrent.name))
-                        } else {
-                            let filePath = torrent.files[0].path
-                            uploadable.children.push(new UploadableFile(`.${downloadLocation}/${filePath}`))
-                        }
-
-                        count --;
-
-                        if (count == 0) {
-                            
-                        }
-                    })
-
-                    torrent.on('error', (err) => {
-                        console.error(`Following error has occured whilst downloading a torrent file.\n[${torrent.name}] : ${err}`)
-                        client.remove(torrentID)
-                        count --;
-                    })
-
-                    torrent.on('noPeers', () => {
-                        console.log(`Following torrent appears to have no peers, and thus will be skipped.\n[${file}]`);
-                        client.remove(torrentID)
-                        count--;
-                    })
-                })
-            });
+            this.downloadDirectory(this.directoryLocation, uploadable, client, resolve, reject)
         })
+    
+    }
+
+    downloadDirectory(directoryLocation: string, uploadable: UploadableMultiTorrentDownloads, client: WebTorrent.Instance, resolve: (value: Uploadable | PromiseLike<Uploadable>) => void, reject: (reason?: any) => void) {
+
+        fs.readdirSync(directoryLocation).forEach(file => {
+            let torrentName = file.split(".")[0];
+
+            let torrentID = `${directoryLocation}/${file}`
+            let downloadLocation = `/${this.MAIN_DOWNLOAD_FOLDER}/${torrentName}`
+
+            client.add(torrentID, { path: downloadLocation }, torrent => {
+                this.downloadingTorrentCount = this.downloadingTorrentCount + 1;
+
+                torrent.on('done', () => this.handleTorrentCompletion(torrent, uploadable, downloadLocation, resolve))
+
+                torrent.on('error', (err) => this.handleTorrentError(torrent, client, torrentID, uploadable, err, resolve))
+
+                torrent.on('noPeers', () => this.handleTorrentNoPeers(client, uploadable, torrentID, file, resolve))
+            })
+        });
+    }
+
+    handleTorrentCompletion(torrent: WebTorrent.Torrent, uploadable: UploadableMultiTorrentDownloads, downloadLocation: string, resolve: (value: Uploadable | PromiseLike<Uploadable>) => void) {
+        if (torrent.files.length > 1) {
+            //Multiple Files have been downloaded from the torrent
+            uploadable.children.push(new UploadableDirectory(`.${downloadLocation}`, torrent.name))
+        } else {
+            let filePath = torrent.files[0].path
+            uploadable.children.push(new UploadableFile(`.${downloadLocation}/${filePath}`, torrent.name))
+        }
+
+        this.downloadingTorrentCount = this.downloadingTorrentCount - 1;
+
+        if (this.downloadingTorrentCount == 0) {
+            resolve(uploadable)
+        }
+    }
+
+    handleTorrentError(torrent: WebTorrent.Torrent, client: WebTorrent.Instance, torrentID: string, uploadable: UploadableMultiTorrentDownloads, error: String | Error, resolve: (value: Uploadable | PromiseLike<Uploadable>) => void) {
+        console.error(`Following error has occured whilst downloading a torrent file.\n[${torrent.name}] : ${error}`)
+        client.remove(torrentID)
+        this.downloadingTorrentCount = this.downloadingTorrentCount - 1;
+
+        if (this.downloadingTorrentCount == 0) {
+            resolve(uploadable)
+        }
+    }
+
+    handleTorrentNoPeers(client:WebTorrent.Instance, uploadable:UploadableMultiTorrentDownloads, torrentID:string, file:string, resolve: (value: Uploadable | PromiseLike<Uploadable>) => void) {
+        console.log(`Following torrent appears to have no peers, and thus will be skipped.\n[${file}]`);
+        client.remove(torrentID)
+        this.downloadingTorrentCount = this.downloadingTorrentCount - 1;
+
+        if (this.downloadingTorrentCount == 0) {
+            resolve(uploadable)
+        }
     }
 }
