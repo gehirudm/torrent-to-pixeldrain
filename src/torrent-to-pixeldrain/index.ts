@@ -1,13 +1,13 @@
 import { TorrentType } from "./interfaces/torrenttype";
 import { Uploadable } from "./interfaces/uploadable";
+import { PixeldrainService } from "./services/pixeldrainservice";
 
 export class TorrentToPixeldrain {
     torrent: TorrentType;
-    APIKey: string;
 
     constructor(torrent: TorrentType, pixeldrainAPIKey: string) {
         this.torrent = torrent;
-        this.APIKey = pixeldrainAPIKey;
+        torrent.pixeldrainService = new PixeldrainService(pixeldrainAPIKey);
     }
 
     private downloadTorrent(): Promise<Uploadable> {
@@ -16,25 +16,26 @@ export class TorrentToPixeldrain {
         })
     }
 
-    private uploadDownloadedFiles(file: Uploadable): Promise<boolean> {
-        return new Promise<boolean>((resolve, reject) => {
-            file.upload(this.APIKey).then(() => resolve(true)).catch(() => reject(false))
+    private uploadDownloadedFiles(file: Uploadable): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            file.upload().then(resolve).catch(reject)
         })
     }
 
     /**
      * Start Download and Upload Processes
      */
-    public start(): Promise<boolean> {
-        return new Promise<boolean>(async (resolve, reject) => {
+    public start(): Promise<void> {
+        return new Promise<void>(async (resolve, reject) => {
             this.downloadTorrent()
-                .then(async (file) => {
-                    let status = await this.uploadDownloadedFiles(file);
-                    if (!status) {
-                        reject("Error occured while uploading file")
-                    }
+                .then(file => {
+                    this.uploadDownloadedFiles(file)
+                        .then(id => {
+                            console.log(id);
+                            resolve()
+                        })
                 })
-                .catch(e => reject(e))
+                .catch(reject)
         })
     }
 }
