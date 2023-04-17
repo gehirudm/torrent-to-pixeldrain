@@ -1,6 +1,6 @@
 {
   "name": "torrent-to-pixeldrain",
-  "version": "0.0.4",
+  "version": "0.2.0",
   "description": "Allows you to download a torrent and upload it to pixeldrain.com",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
