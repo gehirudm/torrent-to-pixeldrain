@@ -4,12 +4,14 @@ import * as superchargedFs from '@supercharge/fs'
 
 export class TorrentDownloaderService {
     private torrentClient: WebTorrent.Instance;
+    private verbose:boolean;
 
-    constructor() {
+    constructor(verbose: boolean = false) {
         this.torrentClient = new WebTorrent();
+        this.verbose = verbose;
     }
 
-    public download(pathToTorrent: string, outPath: string, verbose: boolean = false): Promise<DownloadedTorrent> {
+    public download(pathToTorrent: string, outPath: string): Promise<DownloadedTorrent> {
         return new Promise<DownloadedTorrent>(async (resolve, reject) => {
             if (outPath != "") {
                 await superchargedFs.ensureDir(outPath);
@@ -32,7 +34,7 @@ export class TorrentDownloaderService {
                     id: pathToTorrent
                 }))
 
-                if (verbose) {
+                if (this.verbose) {
                     torrent.on('download', () => {
                         if (((torrent.progress * 100) % 5) < 1) {
                             console.log('progress: ' + torrent.progress * 100 + '%')   

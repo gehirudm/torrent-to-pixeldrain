@@ -63,6 +63,11 @@ export class TorrentBuilder {
         return this;
     }
 
+    setName(name: string): TorrentBuilder {
+        this.torrent.name = name
+        return this;
+    }
+
     /**
      * Called inside TorrentToPixeldrain class.
      *

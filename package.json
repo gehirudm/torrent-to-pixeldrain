@@ -12,7 +12,7 @@
     "src"
   ],
   "scripts": {
-    "test": "npx tsc && jest --silent=false",
+    "test": "npx tsc && jest --silent=false --runInBand",
     "update": "npx tsc && npm version patch && npm publish"
   },
   "repository": {
