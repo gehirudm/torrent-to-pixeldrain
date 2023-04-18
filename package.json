@@ -29,7 +29,7 @@
   "dependencies": {
     "@supercharge/fs": "^3.4.0",
     "archiver": "^5.3.1",
-    "parse-torrent": "^11.0.8",
+    "parse-torrent": "^9.1.5",
     "pixeldrainjs": "^0.3.8",
     "typescript": "^5.0.4",
     "webtorrent": "^1.9.7"
