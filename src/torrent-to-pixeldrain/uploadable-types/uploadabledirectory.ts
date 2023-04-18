@@ -10,6 +10,13 @@ export class UploadableDirectory implements Uploadable {
     zipper: Zipper;
     pixeldrainService: PixeldrainService;
 
+    /**
+     * Creates an instance of UploadableDirectory.
+     * @param {string} location Path to the directory as a string
+     * @param {string} name Name for the resulting zip after zipping the directory (Without the .zip extension)
+     * @param {PixeldrainService} pixeldrainService
+     * @memberof UploadableDirectory
+     */
     constructor(location: string, name: string, pixeldrainService: PixeldrainService) {
         this.location = location;
         this.name = name;
@@ -23,8 +30,8 @@ export class UploadableDirectory implements Uploadable {
                 .then(() => {
                     this.pixeldrainService.uploadFile(`./zipped/${this.name}.zip`, this.name)
                         .then(async (id) => {
-                            await superchargedFs.emptyDir("./zipped");
-                            await superchargedFs.remove("./zipped");
+                            superchargedFs.emptyDirSync("./zipped");
+                            await superchargedFs.removeDir("./zipped");
                             resolve(id);
                         })
                         .catch(reject)

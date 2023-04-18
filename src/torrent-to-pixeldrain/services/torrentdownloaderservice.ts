@@ -15,13 +15,16 @@ export class TorrentDownloaderService {
                 await superchargedFs.ensureDir(outPath);
             }
             this.torrentClient.add(pathToTorrent, { path: outPath }, torrent => {
-                torrent.on('done', () => resolve({
-                    sucess: true,
-                    name: torrent.name,
-                    fileCount: torrent.files.length,
-                    downloadedPath: outPath,
-                    filePath: torrent.files.length == 1 ? `${outPath}/${torrent.files[0].path}` : undefined
-                }))
+                torrent.on('done', () => {
+                    resolve({
+                        sucess: true,
+                        name: torrent.name,
+                        fileCount: torrent.files.length,
+                        downloadedPath: outPath,
+                        filePath: torrent.files.length == 1 ? `${outPath}/${torrent.files[0].path}` : undefined
+                    })
+                    torrent.destroy();
+                })
 
                 torrent.on('error', (err) => resolve({
                     sucess: false,
@@ -31,9 +34,9 @@ export class TorrentDownloaderService {
 
                 if (verbose) {
                     torrent.on('download', () => {
-                        // console.log('total downloaded: ' + torrent.downloaded)
-                        // console.log('download speed: ' + torrent.downloadSpeed)
-                        console.log('progress: ' + torrent.progress * 100 + '%')
+                        if (((torrent.progress * 100) % 5) < 1) {
+                            console.log('progress: ' + torrent.progress * 100 + '%')   
+                        }
                     })
                 }
             })

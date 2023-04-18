@@ -7,6 +7,13 @@ export class UploadableFile implements Uploadable {
     fileName: string;
     pixeldrainService: PixeldrainService;
 
+    /**
+     * Creates an instance of UploadableFile.
+     * @param {string} location Path to the file as a string
+     * @param {string} fileName Name of the file
+     * @param {PixeldrainService} pixeldrainService
+     * @memberof UploadableFile
+     */
     constructor(location: string, fileName: string, pixeldrainService: PixeldrainService) {
         this.location = location;
         this.fileName = fileName;

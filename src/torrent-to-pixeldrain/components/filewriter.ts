@@ -1,7 +1,7 @@
 import * as superchargedFs from '@supercharge/fs'
 
 export class FileWriter {
-    private lines: string[];
+    private lines: string[] = [];
     private outPath: string;
 
     constructor(outPath: string) {
