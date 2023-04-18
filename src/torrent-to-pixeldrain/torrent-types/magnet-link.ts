@@ -1,13 +1,17 @@
-import { TorrentType } from "../interfaces/torrenttype";
+import { Torrent } from "../interfaces/torrenttype";
 import { Uploadable } from "../interfaces/uploadable";
 import { PixeldrainService } from "../services/pixeldrainservice";
+import { TorrentDownloaderService } from "../services/torrentdownloaderservice";
 
-export class MagnetLink implements TorrentType {
-    magnetLink: string;
+export class MagnetLink implements Torrent {
+    input: string;
+    output?: string;
+
     pixeldrainService: PixeldrainService;
-
-    constructor(magnetLink: string) {
-        this.magnetLink = magnetLink;
+    private torrentDownloadService: TorrentDownloaderService;
+    
+    constructor(torrentDownloadService: TorrentDownloaderService) {
+        this.torrentDownloadService = torrentDownloadService;
     }
     
     download(): Promise<Uploadable> {

@@ -9,7 +9,21 @@ It's a file sharing site.
 - Fast transfer speeds
 
 ## Installation
-```shell
-npm install torrent-to-pixeldrain
+```bash
+$ npm install torrent-to-pixeldrain
+```
+
+## Usage
+```javascript
+let builder = new TorrentBuilder()
+            .setType("single file")
+            .setInput("./tests/resources/torrent/single-torrent.torrent")
+            .setOutput("./tests/downloads")
+
+let writer = new FileWriter("./tests/logs/test-log.txt")
+
+let client = new TorrentToPixeldrain(builder, "fe2f1e37-32b3-4f75-b16b-f51cf4c5cb77", writer)
+
+client.start()
 ```
 
