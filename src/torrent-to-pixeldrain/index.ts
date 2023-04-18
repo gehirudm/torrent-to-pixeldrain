@@ -1,13 +1,16 @@
-import { TorrentType } from "./interfaces/torrenttype";
+import { FileWriter } from "./components/filewriter";
+import { TorrentBuilder } from "./components/torrentbuilder";
+import { Torrent } from "./interfaces/torrenttype";
 import { Uploadable } from "./interfaces/uploadable";
 import { PixeldrainService } from "./services/pixeldrainservice";
 
 export class TorrentToPixeldrain {
-    torrent: TorrentType;
+    private torrent: Torrent;
+    private writer: FileWriter;
 
-    constructor(torrent: TorrentType, pixeldrainAPIKey: string) {
-        this.torrent = torrent;
-        torrent.pixeldrainService = new PixeldrainService(pixeldrainAPIKey);
+    constructor(torrent: TorrentBuilder, pixeldrainAPIKey: string, writer?: FileWriter) {
+        this.writer = writer;
+        this.torrent = torrent.build(new PixeldrainService(pixeldrainAPIKey, writer));
     }
 
     private downloadTorrent(): Promise<Uploadable> {
@@ -30,8 +33,11 @@ export class TorrentToPixeldrain {
             this.downloadTorrent()
                 .then(file => {
                     this.uploadDownloadedFiles(file)
-                        .then(id => {
+                        .then(async id => {
                             console.log(id);
+                            if (this.writer) {
+                                await this.writer.write()
+                            }
                             resolve()
                         })
                 })

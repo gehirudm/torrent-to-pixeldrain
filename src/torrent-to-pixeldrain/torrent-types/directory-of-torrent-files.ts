@@ -1,42 +1,41 @@
-import { TorrentType } from "../interfaces/torrenttype";
+import { Torrent } from "../interfaces/torrenttype";
 import { Uploadable } from "../interfaces/uploadable";
 import { UploadableMultiTorrentDownloads } from "../uploadable-types/uploadablemultitorrent";
-import { UploadableDirectory } from "../uploadable-types/uploadabledirectory";
-import { UploadableFile } from "../uploadable-types/uploadablefile";
 import { TorrentDownloaderService } from "../services/torrentdownloaderservice";
 import { DownloadedTorrent } from "../interfaces/downloadedtorrent";
 import { PixeldrainService } from "../services/pixeldrainservice";
 
 import * as fs from 'fs';
 import parseTorrent from 'parse-torrent';
+import { TorrentToUplodable } from "../components/torrenttouploadable";
 
-export class DirectoryOfTorrentFiles implements TorrentType {
-    directoryLocation: string;
-    torrentDownloadService: TorrentDownloaderService;
-    readonly MAIN_DOWNLOAD_FOLDER = "downloads";
+export class DirectoryOfTorrentFiles implements Torrent {
+    input: string;
+    output?: string;
+
+    private torrentDownloadService: TorrentDownloaderService;
     pixeldrainService: PixeldrainService;
 
-    constructor(directoryLocation: string, torrentDownloadService: TorrentDownloaderService) {
-        this.directoryLocation = directoryLocation;
+    readonly MAIN_DOWNLOAD_FOLDER = "downloads";
+
+    constructor(torrentDownloadService: TorrentDownloaderService) {
         this.torrentDownloadService = torrentDownloadService;
     }
 
-    download(downloadPath?: string): Promise<Uploadable> {
+    download(): Promise<Uploadable> {
         return new Promise<Uploadable>((resolve, reject) => {
 
             let torrentDownloadQueue: Promise<DownloadedTorrent>[] = []
-            fs.readdirSync(this.directoryLocation).forEach(file => {
+            fs.readdirSync(this.input).forEach(file => {
 
-                let torrentName = parseTorrent(fs.readFileSync(`${this.directoryLocation}/${file}`)).name
+                let torrentName = parseTorrent(fs.readFileSync(`${this.input}/${file}`)).name
                 let torrentNameAlt = file.split(".")[0];
 
-                let pathToTorrent = `${this.directoryLocation}/${file}`
-                let downloadLocation = downloadPath ? `/${downloadPath}/${torrentName ? torrentName : torrentNameAlt}` : `/${this.MAIN_DOWNLOAD_FOLDER}/${torrentName}`
+                let pathToTorrent = `${this.input}/${file}`
+                let downloadLocation = this.output ? `/${this.output}/${torrentName ? torrentName : torrentNameAlt}` : `/${this.MAIN_DOWNLOAD_FOLDER}/${torrentName}`
 
                 torrentDownloadQueue.push(this.torrentDownloadService.download(pathToTorrent, downloadLocation))
             })
-
-            const uploadable = new UploadableMultiTorrentDownloads();
 
             Promise.all(torrentDownloadQueue)
                 .then((downloadedTorrents) => {
@@ -47,13 +46,10 @@ export class DirectoryOfTorrentFiles implements TorrentType {
                         }
                     })
 
-                    sucessfullyDownloadedTorrents.forEach(torrent => {
-                        if (torrent.fileCount > 1) {
-                            uploadable.children.push(new UploadableDirectory(torrent.downloadedPath, torrent.name, this.pixeldrainService))
-                        } else {
-                            uploadable.children.push(new UploadableFile(torrent.filePath, torrent.name, this.pixeldrainService))
-                        }
+                    const uploadable = new UploadableMultiTorrentDownloads();
 
+                    sucessfullyDownloadedTorrents.forEach(torrent => {
+                        resolve(TorrentToUplodable.convert(torrent, this.pixeldrainService))
                     })
 
                     resolve(uploadable);
