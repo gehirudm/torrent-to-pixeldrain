@@ -15,6 +15,8 @@ $ npm install torrent-to-pixeldrain
 
 ## Usage
 ```javascript
+import { TorrentToPixeldrain, FileWriter, TorrentBuilder } from "torrent-to-pixeldrain";
+
 let builder = new TorrentBuilder()
             .setType("single file")
             .setInput("./tests/resources/torrent/single-torrent.torrent")

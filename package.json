@@ -7,8 +7,12 @@
   "files": [
     "/dist"
   ],
+  "moduleDirectories": [
+    "node_modules",
+    "src"
+  ],
   "scripts": {
-    "test": "npx tsc && jest",
+    "test": "npx tsc && jest --silent=false",
     "update": "npx tsc && npm version patch && npm publish"
   },
   "repository": {
@@ -28,7 +32,7 @@
     "parse-torrent": "^11.0.8",
     "pixeldrainjs": "^0.3.8",
     "typescript": "^5.0.4",
-    "webtorrent": "^2.0.16"
+    "webtorrent": "^1.9.7"
   },
   "devDependencies": {
     "@types/archiver": "^5.3.2",

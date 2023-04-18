@@ -9,7 +9,7 @@ export class TorrentDownloaderService {
         this.torrentClient = new WebTorrent();
     }
 
-    public download(pathToTorrent: string, outPath: string): Promise<DownloadedTorrent> {
+    public download(pathToTorrent: string, outPath: string, verbose: boolean = false): Promise<DownloadedTorrent> {
         return new Promise<DownloadedTorrent>(async (resolve, reject) => {
             if (outPath != "") {
                 await superchargedFs.ensureDir(outPath);
@@ -29,11 +29,13 @@ export class TorrentDownloaderService {
                     id: pathToTorrent
                 }))
 
-                torrent.on('noPeers', () => resolve({
-                    sucess: false,
-                    error: new Error("No Peers"),
-                    id: pathToTorrent
-                }))
+                if (verbose) {
+                    torrent.on('download', () => {
+                        // console.log('total downloaded: ' + torrent.downloaded)
+                        // console.log('download speed: ' + torrent.downloadSpeed)
+                        console.log('progress: ' + torrent.progress * 100 + '%')
+                    })
+                }
             })
 
             this.torrentClient.on("error", reject);
