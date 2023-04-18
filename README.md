@@ -22,7 +22,7 @@ let builder = new TorrentBuilder()
 
 let writer = new FileWriter("./tests/logs/test-log.txt")
 
-let client = new TorrentToPixeldrain(builder, "fe2f1e37-32b3-4f75-b16b-f51cf4c5cb77", writer)
+let client = new TorrentToPixeldrain(builder, "your-api-key", writer)
 
 client.start()
 ```
