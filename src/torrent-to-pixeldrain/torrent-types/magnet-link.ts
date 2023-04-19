@@ -27,7 +27,7 @@ export class MagnetLink implements Torrent {
             let torrentName = parseTorrent(this.input).name
             let torrentNameAlt = this.name;
 
-            let downloadLocation = this.output ? `/${this.output}/${torrentName ? torrentName : torrentNameAlt}` : `/${this.MAIN_DOWNLOAD_FOLDER}/${torrentName}`
+            let downloadLocation = this.output ? `${this.output}/${torrentName ? torrentName : torrentNameAlt}` : `/${this.MAIN_DOWNLOAD_FOLDER}/${torrentName}`
             this.torrentDownloadService.download(this.input, downloadLocation)
                 .then((torrent) => {
                     resolve(TorrentToUplodable.convert(torrent, this.pixeldrainService))

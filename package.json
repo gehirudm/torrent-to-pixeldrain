@@ -12,7 +12,8 @@
     "src"
   ],
   "scripts": {
-    "test": "npx tsc && jest --silent=false --runInBand",
+    "build": "npx tsc",
+    "test": "jest --silent=false --runInBand --forceExit",
     "update": "npx tsc && npm version patch && npm publish"
   },
   "repository": {

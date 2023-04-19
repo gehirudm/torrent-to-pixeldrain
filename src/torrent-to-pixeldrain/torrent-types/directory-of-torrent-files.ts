@@ -47,7 +47,7 @@ export class DirectoryOfTorrentFiles implements Torrent {
                 let torrentNameAlt = file.split(".")[0];
 
                 let pathToTorrent = `${this.input}/${file}`
-                let downloadLocation = this.output ? `/${this.output}/${torrentName ? torrentName : torrentNameAlt}` : `/${this.MAIN_DOWNLOAD_FOLDER}/${torrentName}`
+                let downloadLocation = this.output ? `${this.output}/${torrentName ? torrentName : torrentNameAlt}` : `/${this.MAIN_DOWNLOAD_FOLDER}/${torrentName}`
 
                 torrentDownloadQueue.push(this.torrentDownloadService.download(pathToTorrent, downloadLocation))
             })

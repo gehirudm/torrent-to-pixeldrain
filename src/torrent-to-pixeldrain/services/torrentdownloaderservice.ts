@@ -3,8 +3,8 @@ import { DownloadedTorrent } from '../interfaces/downloadedtorrent';
 import * as superchargedFs from '@supercharge/fs'
 
 export class TorrentDownloaderService {
-    private torrentClient: WebTorrent.Instance;
-    private verbose:boolean;
+    public torrentClient: WebTorrent.Instance;
+    public verbose: boolean;
 
     constructor(verbose: boolean = false) {
         this.torrentClient = new WebTorrent();
@@ -17,6 +17,8 @@ export class TorrentDownloaderService {
                 await superchargedFs.ensureDir(outPath);
             }
             this.torrentClient.add(pathToTorrent, { path: outPath }, torrent => {
+                let resolved = false;
+
                 torrent.on('done', () => {
                     resolve({
                         sucess: true,
@@ -25,7 +27,8 @@ export class TorrentDownloaderService {
                         downloadedPath: outPath,
                         filePath: torrent.files.length == 1 ? `${outPath}/${torrent.files[0].path}` : undefined
                     })
-                    torrent.destroy();
+                    resolved = true;
+                    this.torrentClient.destroy(() => this.torrentClient = new WebTorrent())
                 })
 
                 torrent.on('error', (err) => resolve({
@@ -36,8 +39,11 @@ export class TorrentDownloaderService {
 
                 if (this.verbose) {
                     torrent.on('download', () => {
-                        if (((torrent.progress * 100) % 5) < 1) {
-                            console.log('progress: ' + torrent.progress * 100 + '%')   
+                        if (resolved) {
+                            return;
+                        }
+                        if (((torrent.progress * 100) % 5) < 0.1) {
+                            console.log('progress: ' + torrent.progress * 100 + '%')
                         }
                     })
                 }

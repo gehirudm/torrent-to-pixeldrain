@@ -27,10 +27,9 @@ export class TorrentFile implements Torrent {
             let torrentName = parseTorrent(fs.readFileSync(this.input)).name
             let torrentNameAlt = superchargedFs.filename(this.input);
 
-            let downloadLocation = this.output ? `/${this.output}/${torrentName ? torrentName : torrentNameAlt}` : `/${this.MAIN_DOWNLOAD_FOLDER}/${torrentName}`
+            let downloadLocation = this.output ? `${this.output}/${torrentName ? torrentName : torrentNameAlt}` : `./${this.MAIN_DOWNLOAD_FOLDER}/${torrentName}`
             this.torrentDownloadService.download(this.input, downloadLocation)
                 .then((torrent) => {
-                    console.log(torrent);
                     resolve(TorrentToUplodable.convert(torrent, this.pixeldrainService))
                 })
                 .catch(reject)
